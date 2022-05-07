@@ -1,5 +1,5 @@
 {
-  "name": "xml",
+  "name": "@chaneyoukaye/xml",
   "version": "1.0.1",
   "description": "Fast and simple xml generator. Supports attributes, CDATA, etc. Includes tests and examples.",
   "homepage": "http://github.com/dylang/node-xml",
@@ -34,5 +34,8 @@
     "test": "ava"
   },
   "main": "lib/xml.js",
-  "license": "MIT"
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^17.0.31"
+  }
 }
