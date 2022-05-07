@@ -1,5 +1,5 @@
 import test from 'ava';
-import xml from '../lib/xml';
+import xml from '../lib/xml.mjs';
 
 test('no elements', t => {
     t.is(xml(), '');
