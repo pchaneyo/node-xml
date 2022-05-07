@@ -1,10 +1,8 @@
-// var escapeForXML = require('./escapeForXML.mjs');
-import escapeForXML from './escapeForXML.mjs';
-// var Stream = require('stream').Stream;
+import escapeForXML from './escapeForXML';
 
-var DEFAULT_INDENT = '    ';
+const DEFAULT_INDENT = '    ';
 
-export function xml(input, options) {
+export function xml(input?: any, options?: any) {
 
     if (typeof options !== 'object') {
         options = {
@@ -12,81 +10,53 @@ export function xml(input, options) {
         };
     }
 
-    var stream      = options.stream ? new Stream() : null,
-        output      = "",
-        interrupted = false,
-        indent      = !options.indent ? ''
-                        : options.indent === true ? DEFAULT_INDENT
-                            : options.indent,
-        instant     = true;
+    let output = ""
+    const indent: string = !options.indent ? ''
+        : options.indent === true ? DEFAULT_INDENT
+            : options.indent
 
 
-    function delay (func) {
-        if (!instant) {
-            func();
-        } else {
-            if (typeof process !== undefined) {
-                process.nextTick(func)
-            }
-            else {
-                setTimeout(func, 0)
-            }
-        }
-    }
-
-    function append (interrupt, out) {
+    function append(interrupt: any, out: any) {
         if (out !== undefined) {
             output += out;
         }
-        if (interrupt && !interrupted) {
-            stream = stream || new Stream();
-            interrupted = true;
-        }
-        if (interrupt && interrupted) {
-            var data = output;
-            delay(function () { stream.emit('data', data) });
-            output = "";
-        }
+        // if (interrupt && !interrupted) {
+        //     stream = stream || new Stream();
+        //     interrupted = true;
+        // }
+        // if (interrupt && interrupted) {
+        //     var data = output;
+        //     delay(function () { stream.emit('data', data) });
+        //     output = "";
+        // }
     }
 
-    function add (value, last) {
+    function add(value: any, last?: any) {
         format(append, resolve(value, indent, indent ? 1 : 0), last);
     }
 
     function end() {
-        if (stream) {
-            var data = output;
-            delay(function () {
-              stream.emit('data', data);
-              stream.emit('end');
-              stream.readable = false;
-              stream.emit('close');
-            });
-        }
     }
 
-    function addXmlDeclaration(declaration) {
-        var encoding = declaration.encoding || 'UTF-8',
-            attr =  { version: '1.0', encoding: encoding };
+    function addXmlDeclaration(declaration: any) {
+        const encoding = declaration.encoding || 'UTF-8',
+            attr: { version: string, encoding: any, standalone?: any } = { version: '1.0', encoding: encoding };
 
         if (declaration.standalone) {
             attr.standalone = declaration.standalone
         }
 
-        add({'?xml': { _attr: attr } });
+        add({ '?xml': { _attr: attr } });
         output = output.replace('/>', '?>');
     }
-
-    // disable delay delayed
-    delay(function () { instant = false });
 
     if (options.declaration) {
         addXmlDeclaration(options.declaration);
     }
 
     if (input && input.forEach) {
-        input.forEach(function (value, i) {
-            var last;
+        input.forEach(function (value: any, i: number) {
+            let last: Function | undefined;
             if (i + 1 === input.length)
                 last = end;
             add(value, last);
@@ -95,31 +65,27 @@ export function xml(input, options) {
         add(input, end);
     }
 
-    if (stream) {
-        stream.readable = true;
-        return stream;
-    }
     return output;
 }
 
-export function element (/*input, …*/) {
-    var input = Array.prototype.slice.call(arguments),
-        self = {
-            _elem:  resolve(input)
+export function element(/*input, …*/) {
+    const input = Array.prototype.slice.call(arguments),
+        self: any = {
+            _elem: resolve(input)
         };
 
-    self.push = function (input) {
+    self.push = function (input: any) {
         if (!this.append) {
             throw new Error("not assigned to a parent!");
         }
-        var that = this;
-        var indent = this._elem.indent;
+        const that = this;
+        const indent = this._elem.indent;
         format(this.append, resolve(
             input, indent, this._elem.icount + (indent ? 1 : 0)),
             function () { that.append(true) });
     };
 
-    self.close = function (input) {
+    self.close = function (input: any) {
         if (input !== undefined) {
             this.push(input);
         }
@@ -131,19 +97,19 @@ export function element (/*input, …*/) {
     return self;
 }
 
-function create_indent(character, count) {
+function create_indent(character: string | undefined, count: number) {
     return (new Array(count || 0).join(character || ''))
 }
 
-function resolve(data, indent, indent_count) {
+function resolve(data: any, indent?: string, indent_count?: number) {
     indent_count = indent_count || 0;
-    var indent_spaces = create_indent(indent, indent_count);
-    var name;
-    var values = data;
-    var interrupt = false;
+    const indent_spaces = create_indent(indent, indent_count);
+    let name: string | undefined;
+    let values = data;
+    const interrupt = false;
 
     if (typeof data === 'object') {
-        var keys = Object.keys(data);
+        const keys = Object.keys(data);
         name = keys[0];
         values = data[name];
 
@@ -157,19 +123,19 @@ function resolve(data, indent, indent_count) {
         }
     }
 
-    var attributes = [],
-        content = [];
+    const attributes: any[] = [],
+        content: any[] = [];
 
-    var isStringContent;
+    let isStringContent: boolean;
 
-    function get_attributes(obj){
-        var keys = Object.keys(obj);
-        keys.forEach(function(key){
+    function get_attributes(obj: any) {
+        const keys = Object.keys(obj);
+        keys.forEach(function (key) {
             attributes.push(attribute(key, obj[key]));
         });
     }
 
-    switch(typeof values) {
+    switch (typeof values) {
         case 'object':
             if (values === null) break;
 
@@ -186,20 +152,20 @@ function resolve(data, indent, indent_count) {
             if (values.forEach) {
                 isStringContent = false;
                 content.push('');
-                values.forEach(function(value) {
+                values.forEach(function (value: any) {
                     if (typeof value == 'object') {
-                        var _name = Object.keys(value)[0];
+                        const _name = Object.keys(value)[0];
 
                         if (_name == '_attr') {
                             get_attributes(value._attr);
                         } else {
                             content.push(resolve(
-                                value, indent, indent_count + 1));
+                                value, indent, Number(indent_count) + 1));
                         }
                     } else {
                         //string
                         content.pop();
-                        isStringContent=true;
+                        isStringContent = true;
                         content.push(escapeForXML(value));
                     }
 
@@ -208,7 +174,7 @@ function resolve(data, indent, indent_count) {
                     content.push('');
                 }
             }
-        break;
+            break;
 
         default:
             //string
@@ -217,27 +183,27 @@ function resolve(data, indent, indent_count) {
     }
 
     return {
-        name:       name,
-        interrupt:  interrupt,
+        name: name,
+        interrupt: interrupt,
         attributes: attributes,
-        content:    content,
-        icount:     indent_count,
-        indents:    indent_spaces,
-        indent:     indent
+        content: content,
+        icount: indent_count,
+        indents: indent_spaces,
+        indent: indent
     };
 }
 
-function format(append, elem, end) {
+function format(append: any, elem: any, end?: any) {
 
     if (typeof elem != 'object') {
         return append(false, elem);
     }
 
-    var len = elem.interrupt ? 1 : elem.content.length;
+    const len = elem.interrupt ? 1 : elem.content.length;
 
-    function proceed () {
+    function proceed() {
         while (elem.content.length) {
-            var value = elem.content.shift();
+            const value = elem.content.shift();
 
             if (value === undefined) continue;
             if (interrupt(value)) return;
@@ -254,15 +220,15 @@ function format(append, elem, end) {
         }
     }
 
-    function interrupt(value) {
-       if (value.interrupt) {
-           value.interrupt.append = append;
-           value.interrupt.end = proceed;
-           value.interrupt = false;
-           append(true);
-           return true;
-       }
-       return false;
+    function interrupt(value: any) {
+        if (value.interrupt) {
+            value.interrupt.append = append;
+            value.interrupt.end = proceed;
+            value.interrupt = false;
+            append(true);
+            return true;
+        }
+        return false;
     }
 
     append(false, elem.indents
@@ -280,7 +246,7 @@ function format(append, elem, end) {
     }
 }
 
-function attribute(key, value) {
+function attribute(key: any, value: any) {
     return key + '=' + '"' + escapeForXML(value) + '"';
 }
 
