@@ -1,6 +1,6 @@
 {
   "name": "@chaneyoukaye/xml",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Fast and simple xml generator. Supports attributes, CDATA, etc. Includes tests and examples.",
   "homepage": "http://github.com/dylang/node-xml",
   "keywords": [
@@ -34,6 +34,6 @@
     "build": "tsc",
     "test": "ava"
   },
-  "main": "lib/xml.ts",
+  "main": "dist/index.js",
   "license": "ISC"
 }
